@@ -1,0 +1,11 @@
+@prefix ex: <https://example.org/cafe#> .
+
+# 오류 1: 손님인데 이름이 빠졌습니다.
+ex:C003 a ex:Customer .
+
+# 오류 2: 카페인 여부에 참/거짓 대신 문자열을 넣었습니다.
+ex:drink_bad a ex:Drink .
+ex:drink_bad ex:name "신메뉴" .
+ex:drink_bad ex:hasCaffeine "모름" .
+
+ex:C003 ex:buys ex:drink_bad .

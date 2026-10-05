@@ -1,0 +1,108 @@
+@prefix ex: <https://example.org/cafe-ops#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://example.org/cafe-ops> a owl:Ontology ;
+    rdfs:label "카페 운영 온톨로지"@ko ;
+    owl:versionInfo "1.0.0" .
+
+# 종류의 계층: 개체의 이름을 붙이는 대신 도메인의 의미를 정의합니다.
+ex:Person a owl:Class .
+ex:Customer a owl:Class ; rdfs:subClassOf ex:Person .
+ex:Store a owl:Class .
+ex:Region a owl:Class .
+ex:City a owl:Class ; rdfs:subClassOf ex:Region .
+ex:District a owl:Class ; rdfs:subClassOf ex:Region .
+ex:Country a owl:Class ; rdfs:subClassOf ex:Region .
+ex:MenuItem a owl:Class .
+ex:Beverage a owl:Class ; rdfs:subClassOf ex:MenuItem .
+ex:Food a owl:Class ; rdfs:subClassOf ex:MenuItem .
+ex:CoffeeDrink a owl:Class ; rdfs:subClassOf ex:Beverage .
+ex:Recipe a owl:Class .
+ex:RecipeRequirement a owl:Class .
+ex:Ingredient a owl:Class .
+ex:PlantIngredient a owl:Class ; rdfs:subClassOf ex:Ingredient .
+ex:AnimalIngredient a owl:Class ; rdfs:subClassOf ex:Ingredient .
+ex:CaffeinatedIngredient a owl:Class ; rdfs:subClassOf ex:Ingredient .
+ex:Allergen a owl:Class .
+ex:Supplier a owl:Class .
+ex:StockEntry a owl:Class .
+ex:Order a owl:Class .
+ex:OrderLine a owl:Class .
+
+# 레시피는 재료별 사용량을 가진 별도 노드를 사용합니다.
+ex:hasRecipe a owl:ObjectProperty ; rdfs:domain ex:MenuItem ; rdfs:range ex:Recipe .
+ex:hasRequirement a owl:ObjectProperty ; rdfs:domain ex:Recipe ; rdfs:range ex:RecipeRequirement .
+ex:ingredient a owl:ObjectProperty ; rdfs:domain ex:RecipeRequirement ; rdfs:range ex:Ingredient .
+
+# 복잡한 연결을 메뉴의 직접 관계로 바꾸는 3단계 속성 체인입니다.
+ex:containsIngredient a owl:ObjectProperty ;
+    rdfs:domain ex:MenuItem ; rdfs:range ex:Ingredient ;
+    owl:propertyChainAxiom ( ex:hasRecipe ex:hasRequirement ex:ingredient ) .
+
+ex:hasAllergen a owl:ObjectProperty ; rdfs:domain ex:Ingredient ; rdfs:range ex:Allergen .
+ex:containsAllergen a owl:ObjectProperty ;
+    rdfs:domain ex:MenuItem ; rdfs:range ex:Allergen ;
+    owl:propertyChainAxiom ( ex:containsIngredient ex:hasAllergen ) .
+
+ex:suppliedBy a owl:ObjectProperty ; rdfs:domain ex:Ingredient ; rdfs:range ex:Supplier ;
+    owl:inverseOf ex:suppliesIngredient .
+ex:suppliesIngredient a owl:ObjectProperty ; rdfs:domain ex:Supplier ; rdfs:range ex:Ingredient .
+ex:menuSuppliedBy a owl:ObjectProperty ;
+    rdfs:domain ex:MenuItem ; rdfs:range ex:Supplier ;
+    owl:propertyChainAxiom ( ex:containsIngredient ex:suppliedBy ) .
+
+# 지역 추이성 + 속성 계층 + 체인으로 매장이 속하는 상위 지역을 얻습니다.
+ex:partOf a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:domain ex:Region ; rdfs:range ex:Region .
+ex:locatedIn a owl:ObjectProperty ; rdfs:domain ex:Store ; rdfs:range ex:Region ;
+    rdfs:subPropertyOf ex:inRegion .
+ex:inRegion a owl:ObjectProperty ; rdfs:domain ex:Store ; rdfs:range ex:Region ;
+    owl:propertyChainAxiom ( ex:locatedIn ex:partOf ) .
+ex:offers a owl:ObjectProperty ; rdfs:domain ex:Store ; rdfs:range ex:MenuItem .
+
+ex:stockStore a owl:ObjectProperty ; rdfs:domain ex:StockEntry ; rdfs:range ex:Store .
+ex:stockIngredient a owl:ObjectProperty ; rdfs:domain ex:StockEntry ; rdfs:range ex:Ingredient .
+ex:avoidsAllergen a owl:ObjectProperty ; rdfs:domain ex:Customer ; rdfs:range ex:Allergen .
+ex:orderedBy a owl:ObjectProperty ; rdfs:domain ex:Order ; rdfs:range ex:Customer ;
+    owl:inverseOf ex:placedOrder .
+ex:placedOrder a owl:ObjectProperty ; rdfs:domain ex:Customer ; rdfs:range ex:Order .
+ex:orderStore a owl:ObjectProperty ; rdfs:domain ex:Order ; rdfs:range ex:Store .
+ex:hasLine a owl:ObjectProperty ; rdfs:domain ex:Order ; rdfs:range ex:OrderLine .
+ex:lineMenu a owl:ObjectProperty ; rdfs:domain ex:OrderLine ; rdfs:range ex:MenuItem .
+
+ex:menuPrice a owl:DatatypeProperty ; rdfs:domain ex:MenuItem ; rdfs:range xsd:integer .
+ex:requiredGrams a owl:DatatypeProperty ; rdfs:domain ex:RecipeRequirement ; rdfs:range xsd:decimal .
+ex:availableGrams a owl:DatatypeProperty ; rdfs:domain ex:StockEntry ; rdfs:range xsd:decimal .
+ex:isVegan a owl:DatatypeProperty ; rdfs:domain ex:Ingredient ; rdfs:range xsd:boolean .
+ex:ingredientCaffeine a owl:DatatypeProperty ; rdfs:domain ex:Ingredient ; rdfs:range xsd:boolean .
+ex:profileComplete a owl:DatatypeProperty ; rdfs:domain ex:Ingredient ; rdfs:range xsd:boolean .
+ex:veganOnly a owl:DatatypeProperty ; rdfs:domain ex:Customer ; rdfs:range xsd:boolean .
+ex:avoidCaffeine a owl:DatatypeProperty ; rdfs:domain ex:Customer ; rdfs:range xsd:boolean .
+ex:budget a owl:DatatypeProperty ; rdfs:domain ex:Customer ; rdfs:range xsd:integer .
+ex:lineQuantity a owl:DatatypeProperty ; rdfs:domain ex:OrderLine ; rdfs:range xsd:integer .
+ex:lineUnitPrice a owl:DatatypeProperty ; rdfs:domain ex:OrderLine ; rdfs:range xsd:integer .
+ex:totalPrice a owl:DatatypeProperty ; rdfs:domain ex:Order ; rdfs:range xsd:integer .
+ex:createdAt a owl:DatatypeProperty ; rdfs:domain ex:Order ; rdfs:range xsd:dateTime .
+
+# '카페인 재료를 하나 이상 포함한 메뉴'라는 조건으로 클래스를 정의합니다.
+# 일부 값(someValuesFrom)이 존재한다는 긍정 사실로 분류합니다.
+ex:CaffeinatedIngredient owl:equivalentClass [
+    a owl:Class ;
+    owl:intersectionOf (
+        ex:Ingredient
+        [ a owl:Restriction ; owl:onProperty ex:ingredientCaffeine ; owl:hasValue true ]
+    )
+] .
+
+ex:CaffeinatedMenu a owl:Class ;
+    rdfs:subClassOf ex:MenuItem ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            ex:MenuItem
+            [ a owl:Restriction ; owl:onProperty ex:containsIngredient ;
+              owl:someValuesFrom ex:CaffeinatedIngredient ]
+        )
+    ] .

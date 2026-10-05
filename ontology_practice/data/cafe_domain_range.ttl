@@ -1,0 +1,18 @@
+@prefix ex: <https://example.org/cafe#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:Customer a owl:Class .
+ex:Drink a owl:Class .
+ex:name a owl:DatatypeProperty .
+
+# 이 카페 모델에서 buys 관계의 주어는 손님, 목적어는 음료입니다.
+ex:buys a owl:ObjectProperty .
+ex:buys rdfs:domain ex:Customer .
+ex:buys rdfs:range ex:Drink .
+
+# 개체의 이름과 구매 관계만 작성합니다.
+# C002의 종류와 drink3의 종류는 직접 작성하지 않습니다.
+ex:C002 ex:name "지수" .
+ex:drink3 ex:name "라테" .
+ex:C002 ex:buys ex:drink3 .

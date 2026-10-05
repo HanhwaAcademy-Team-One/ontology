@@ -1,0 +1,21 @@
+@prefix ex: <https://example.org/cafe#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+ex:Customer a owl:Class .
+ex:Drink a owl:Class .
+ex:name a owl:DatatypeProperty .
+
+# 두 관계는 주어와 목적어의 역할이 반대입니다.
+ex:buys a owl:ObjectProperty .
+ex:boughtBy a owl:ObjectProperty .
+ex:buys owl:inverseOf ex:boughtBy .
+
+ex:C001 a ex:Customer .
+ex:C001 ex:name "민수" .
+ex:drink1 a ex:Drink .
+ex:drink1 ex:name "아메리카노" .
+
+# 한 방향의 구매 사실만 작성합니다.
+ex:C001 ex:buys ex:drink1 .
+
+# 'ex:drink1 ex:boughtBy ex:C001 .'는 추론기가 추가합니다.

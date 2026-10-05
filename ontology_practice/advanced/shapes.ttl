@@ -1,0 +1,65 @@
+@prefix ex: <https://example.org/cafe-ops#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:LabelShape a sh:NodeShape ;
+    sh:targetClass ex:Customer, ex:Store, ex:MenuItem, ex:Ingredient, ex:Allergen, ex:Supplier, ex:Region ;
+    sh:property [ sh:path rdfs:label ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ] .
+
+ex:CustomerShape a sh:NodeShape ; sh:targetClass ex:Customer ;
+    sh:property [ sh:path ex:veganOnly ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] ;
+    sh:property [ sh:path ex:avoidCaffeine ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] ;
+    sh:property [ sh:path ex:budget ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minInclusive 0 ] ;
+    sh:property [ sh:path ex:avoidsAllergen ; sh:class ex:Allergen ] .
+
+ex:StoreShape a sh:NodeShape ; sh:targetClass ex:Store ;
+    sh:property [ sh:path ex:offers ; sh:minCount 1 ; sh:class ex:MenuItem ] ;
+    sh:property [ sh:path ex:locatedIn ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ex:Region ] .
+
+ex:MenuShape a sh:NodeShape ; sh:targetClass ex:MenuItem ;
+    sh:property [ sh:path ex:menuPrice ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minInclusive 0 ] ;
+    sh:property [ sh:path ex:hasRecipe ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ex:Recipe ] .
+
+ex:RecipeShape a sh:NodeShape ; sh:targetClass ex:Recipe ;
+    sh:property [ sh:path ex:hasRequirement ; sh:minCount 1 ; sh:class ex:RecipeRequirement ] .
+
+ex:RequirementShape a sh:NodeShape ; sh:targetClass ex:RecipeRequirement ;
+    sh:property [ sh:path ex:ingredient ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ex:Ingredient ] ;
+    sh:property [ sh:path ex:requiredGrams ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:decimal ; sh:minExclusive 0 ] .
+
+ex:IngredientShape a sh:NodeShape ; sh:targetClass ex:Ingredient ;
+    sh:property [ sh:path ex:isVegan ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] ;
+    sh:property [ sh:path ex:ingredientCaffeine ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ] ;
+    sh:property [ sh:path ex:profileComplete ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ; sh:hasValue true ;
+        sh:message "프로필이 완성된 재료만 사용합니다." ] ;
+    sh:property [ sh:path ex:hasAllergen ; sh:class ex:Allergen ] ;
+    sh:property [ sh:path ex:suppliedBy ; sh:minCount 1 ; sh:class ex:Supplier ] .
+
+ex:StockShape a sh:NodeShape ; sh:targetClass ex:StockEntry ;
+    sh:property [ sh:path ex:stockStore ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ex:Store ] ;
+    sh:property [ sh:path ex:stockIngredient ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ex:Ingredient ] ;
+    sh:property [ sh:path ex:availableGrams ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:decimal ; sh:minInclusive 0 ] ;
+    sh:sparql [
+        sh:message "매장과 재료가 같은 재고 레코드는 하나만 허용합니다." ;
+        sh:select """
+            PREFIX ex: <https://example.org/cafe-ops#>
+            SELECT $this WHERE {
+                $this ex:stockStore ?store ; ex:stockIngredient ?ingredient .
+                ?other a ex:StockEntry ; ex:stockStore ?store ; ex:stockIngredient ?ingredient .
+                FILTER(?other != $this)
+            }
+        """
+    ] .
+
+ex:OrderShape a sh:NodeShape ; sh:targetClass ex:Order ;
+    sh:property [ sh:path ex:orderedBy ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ex:Customer ] ;
+    sh:property [ sh:path ex:orderStore ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ex:Store ] ;
+    sh:property [ sh:path ex:hasLine ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ex:OrderLine ] ;
+    sh:property [ sh:path ex:totalPrice ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minInclusive 0 ] ;
+    sh:property [ sh:path ex:createdAt ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:dateTime ] .
+
+ex:OrderLineShape a sh:NodeShape ; sh:targetClass ex:OrderLine ;
+    sh:property [ sh:path ex:lineMenu ; sh:minCount 1 ; sh:maxCount 1 ; sh:class ex:MenuItem ] ;
+    sh:property [ sh:path ex:lineQuantity ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minInclusive 1 ] ;
+    sh:property [ sh:path ex:lineUnitPrice ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minInclusive 0 ] .

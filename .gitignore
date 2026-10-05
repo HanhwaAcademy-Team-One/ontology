@@ -1,0 +1,15 @@
+.venv/
+**/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.uv-cache/
+*.egg-info/
+build/
+dist/
+outputs/
+ontology_practice/data/cafe_validated.ttl
+.env
+.env.*
+!.env.example

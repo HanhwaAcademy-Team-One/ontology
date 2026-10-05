@@ -1,0 +1,10 @@
+PREFIX ex: <https://example.org/cafe-ops#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# ?supplier는 Python initBindings로 지정합니다. 사용자 문자열을 쿼리에 삽입하지 않습니다.
+SELECT DISTINCT ?menu ?menuName ?ingredientName
+WHERE {
+    ?menu ex:menuSuppliedBy ?supplier ; rdfs:label ?menuName ; ex:containsIngredient ?ingredient .
+    ?ingredient ex:suppliedBy ?supplier ; rdfs:label ?ingredientName .
+}
+ORDER BY ?menu ?ingredientName

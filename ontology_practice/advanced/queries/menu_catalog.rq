@@ -1,0 +1,11 @@
+PREFIX ex: <https://example.org/cafe-ops#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT ?menu ?name ?price ?requirement ?ingredient ?grams
+WHERE {
+    ?store ex:offers ?menu .
+    ?menu rdfs:label ?name ; ex:menuPrice ?price ; ex:hasRecipe ?recipe .
+    ?recipe ex:hasRequirement ?requirement .
+    ?requirement ex:ingredient ?ingredient ; ex:requiredGrams ?grams .
+}
+ORDER BY ?menu ?ingredient

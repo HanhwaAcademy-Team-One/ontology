@@ -1,0 +1,18 @@
+@prefix ex: <https://example.org/cafe#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# 1. 음료와 커피라는 클래스를 정의합니다.
+ex:Drink a owl:Class .
+ex:Coffee a owl:Class .
+
+# 2. 모든 커피는 음료라는 클래스 간 관계를 정의합니다.
+ex:Coffee rdfs:subClassOf ex:Drink .
+
+# 3. 구체적인 한 잔인 drink1을 커피로만 기록합니다.
+ex:name a owl:DatatypeProperty .
+ex:drink1 a ex:Coffee .
+ex:drink1 ex:name "아메리카노" .
+
+# 'ex:drink1 a ex:Drink .'는 직접 작성하지 않습니다.
+# 추론기가 위의 정의와 사실을 결합해 이 문장을 추가합니다.

@@ -1,0 +1,26 @@
+@prefix ex: <https://example.org/cafe#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# 손님은 이름을 문자열로 정확히 하나 가져야 합니다.
+ex:CustomerShape a sh:NodeShape .
+ex:CustomerShape sh:targetClass ex:Customer .
+ex:CustomerShape sh:property [
+    sh:path ex:name ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:message "손님 이름은 비어 있지 않은 문자열 1개가 필요합니다."
+] .
+
+# 음료는 카페인 여부를 참/거짓으로 정확히 하나 가져야 합니다.
+ex:DrinkShape a sh:NodeShape .
+ex:DrinkShape sh:targetClass ex:Drink .
+ex:DrinkShape sh:property [
+    sh:path ex:hasCaffeine ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:message "카페인 여부는 true/false 값 1개여야 합니다."
+] .

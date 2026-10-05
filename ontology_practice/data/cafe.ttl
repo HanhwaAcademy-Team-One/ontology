@@ -1,0 +1,27 @@
+# 접두사는 긴 식별자를 짧게 작성하기 위한 이름입니다.
+@prefix ex: <https://example.org/cafe#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# 온톨로지: 대상의 종류와 속성, 관계를 정의합니다.
+ex:Customer a owl:Class .
+ex:Drink a owl:Class .
+ex:buys a owl:ObjectProperty .
+ex:name a owl:DatatypeProperty .
+ex:hasCaffeine a owl:DatatypeProperty .
+
+# 실제 사실: C001은 이름이 민수인 손님입니다.
+ex:C001 a ex:Customer .
+ex:C001 ex:name "민수" .
+
+# drink1과 drink2는 각각 구체적인 음료 한 잔입니다.
+ex:drink1 a ex:Drink .
+ex:drink1 ex:name "아메리카노" .
+ex:drink1 ex:hasCaffeine true .
+
+ex:drink2 a ex:Drink .
+ex:drink2 ex:name "파워에이드" .
+ex:drink2 ex:hasCaffeine false .
+
+# C001이 각 음료를 구매했다는 관계입니다.
+ex:C001 ex:buys ex:drink1 .
+ex:C001 ex:buys ex:drink2 .

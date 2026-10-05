@@ -1,0 +1,22 @@
+@prefix ex: <https://example.org/cafe#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+ex:Place a owl:Class .
+ex:name a owl:DatatypeProperty .
+
+# 이번 모델의 partOf는 장소가 더 큰 지역에 속하는 관계입니다.
+# 같은 관계가 이어지면 중간 장소를 건너뛴 관계도 성립하도록 정의합니다.
+ex:partOf a owl:ObjectProperty .
+ex:partOf a owl:TransitiveProperty .
+
+ex:cafe1 a ex:Place .
+ex:cafe1 ex:name "서울 지점" .
+ex:Gangnam a ex:Place .
+ex:Gangnam ex:name "강남구" .
+ex:Seoul a ex:Place .
+ex:Seoul ex:name "서울" .
+
+ex:cafe1 ex:partOf ex:Gangnam .
+ex:Gangnam ex:partOf ex:Seoul .
+
+# 'ex:cafe1 ex:partOf ex:Seoul .'는 추론기가 추가합니다.
